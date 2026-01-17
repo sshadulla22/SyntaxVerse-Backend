@@ -23,15 +23,28 @@ app = FastAPI(
     debug=settings.DEBUG
 )
 
-# CORS Middleware - Normalized origins
+# CORS Middleware - Robust Configuration
 origins = settings.parsed_origins
-# Add common variations
-if "https://syntaxverse-frontend.onrender.com" in origins:
-    origins.append("https://syntaxverse-frontend.onrender.com/")
+
+# If credentials are allowed, origins cannot be "*"
+# We ensure your production and local URLs are explicitly included
+if "*" in origins:
+    origins = [
+        "https://syntaxverse-frontend.onrender.com",
+        "http://localhost:3000",
+        "http://localhost"
+    ]
+
+# Add variants with trailing slashes
+final_origins = []
+for o in origins:
+    final_origins.append(o)
+    if not o.endswith("/"):
+        final_origins.append(o + "/")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=final_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,6 +74,10 @@ async def log_requests(request: Request, call_next):
 # Include routers
 app.include_router(auth_routes.router)
 app.include_router(routes.router)
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
 
 @app.get("/")
 def root():
