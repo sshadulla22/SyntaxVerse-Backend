@@ -7,8 +7,14 @@ from .config import settings
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
 # Create engine with production-safe configuration
+# Handle Render/Production Database URLs (Postgres/MySQL)
+connect_args = {}
+if "sqlite" in SQLALCHEMY_DATABASE_URL:
+    connect_args = {"check_same_thread": False}
+
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL,
+    connect_args=connect_args
 )
 
 # Create SessionLocal class
