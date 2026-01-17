@@ -14,7 +14,9 @@ if "sqlite" in SQLALCHEMY_DATABASE_URL:
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-    connect_args=connect_args
+    connect_args=connect_args,
+    pool_recycle=3600,  # Recycle connections every hour
+    pool_pre_ping=True  # Check connection validity before using
 )
 
 # Create SessionLocal class
