@@ -23,10 +23,15 @@ app = FastAPI(
     debug=settings.DEBUG
 )
 
-# CORS Middleware
+# CORS Middleware - Normalized origins
+origins = settings.parsed_origins
+# Add common variations
+if "https://syntaxverse-frontend.onrender.com" in origins:
+    origins.append("https://syntaxverse-frontend.onrender.com/")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.parsed_origins,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
